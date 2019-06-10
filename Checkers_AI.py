@@ -119,7 +119,12 @@ class Board:
 
 """class AI_PLAYER():
     def __init__(self,):"""
-
+    
+#def countHeuristic(board): # Given a board, calculate the heuristic value of the board.
+#def buildTree(board): # Given a board, returns a tree which contains 2 steps ahead.
+#def generatePossibleMoves(board, team): # This function helps the buildTree function. Returns all possible moves for the team.
+#def findBestMove(tree): # Using Minimax, returns the best move.
+    
 def main():
    newGame = Board()
    newGame.print_board()
