@@ -259,7 +259,7 @@ def movePieces(board, x, y): # Given the board, x, y, return an array of possibl
             moveList.append(temp_board)
 
 def isValidPosition(x,y):
-    return x >= 0 and y >= 0
+    return x >= 0 and y >= 0 and x < 8 and y < 8
     
 def eatEverything(board, x, y, crowned, myMoves):
     canEat = False
