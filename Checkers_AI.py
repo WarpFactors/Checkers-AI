@@ -433,6 +433,148 @@ class Board:
 
 
         
+        
+        
+        
+        
+        
+        
+        
+        
+sampleArr = [[' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -']]
+
+def movePieces(board, y, x): # Given the board, x, y, return an array of possible moves that the piece will end up. Returns 0 if it's no piece.
+    moveList = []
+    boardList = []
+    if board[x][y] == ' -' or board[x][y] == ' r' or board[x][y] == ' R':
+        return 0 # Piece does not exist in that space.
+    # Identify if piece is crowned or not.
+    crowned = False
+    if board[x][y] == ' B':
+        crowned = True
+    # Produce attacking moves.
+    #attack_moveArr, attack_boardArr = eatEverything(board, x, y, [])
+    myPiece = ' b'
+    if crowned == True:
+        myPiece = ' B'
+    # Produce non-attacking moves (uncrowned).
+    if isValidPosition(x-1,y-1):
+        if board[x-1][y-1] == ' -':
+            temp_board = copy.deepcopy(board)
+            temp_board[x][y] = ' -'
+            board[x-1][y-1] = myPiece
+            boardList.append(temp_board)
+            printBoardSimple(temp_board)
+            moveList.append([x-1,y-1])
+    if isValidPosition(x+1,y-1):
+        if board[x+1][y-1] == ' -':
+            temp_board = copy.deepcopy(board)
+            temp_board[x][y] = ' -'
+            board[x+1][y-1] = myPiece
+            boardList.append(temp_board)
+            printBoardSimple(temp_board)
+            moveList.append([x+1,y-1])
+    # Produce non-attacking moves (crowned).
+    if isValidPosition(x-1,y+1):
+        if board[x-1][y+1] == ' -':
+            temp_board = copy.deepcopy(board)
+            temp_board[x][y] = ' -'
+            board[x-1][y+1] = ' B'
+            boardList.append(temp_board)
+            printBoardSimple(temp_board)
+            moveList.append([x-1,y+1])
+    if isValidPosition(x+1,y+1):
+        if board[x+1][y+1] == ' -':
+            temp_board = copy.deepcopy(board)
+            temp_board[x][y] = ' -'
+            board[x+1][y+1] = ' B'
+            boardList.append(temp_board)
+            printBoardSimple(temp_board)
+            moveList.append([x+1,y+1])
+    return moveList, boardList#, attack_moveArr, attack_boardArr
+            
+
+def isValidPosition(y,x):
+    return x >= 0 and y >= 0 and x < 8 and y < 8
+    
+def eatEverything(board, y, x, crowned, myMoves):
+    canEat = False
+    if isValidPosition(x-1,y-1): # Check for out of bounds.
+        if board[x-1][y-1] == ' r' or board[x-1][y-1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x-2,y-2): # Check for out of bounds.
+                if board[x-2][y-2] == ' -': # Check if it is empty space.
+                    canEat = True
+    if isValidPosition(x+1,y-1): # Check for out of bounds.
+        if board[x+1][y-1] == ' r' or board[x+1][y-1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x+2,y-2): # Check for out of bounds.
+                if board[x+2][y-2] == ' -': # Check if it is empty space.
+                    canEat = True
+    if crowned and isValidPosition(x-1,y+1): # Check for out of bounds.
+        if board[x-1][y+1] == ' r' or board[x-1][y+1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x-2,y+2): # Check for out of bounds.
+                if board[x-2][y+2] == ' -': # Check if it is empty space.
+                    canEat = True
+    if crowned and isValidPosition(x+1,y+1): # Check for out of bounds.
+        if board[x+1][y+1] == ' r' or board[x+1][y+1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x+2,y+2): # Check for out of bounds.
+                if board[x+2][y+2] == ' -': # Check if it is empty space.
+                    canEat = True
+    if canEat == False: # Return the move list and board.
+        return myMoves, board
+    moveList = []
+    myPiece = ' b'
+    if crowned == True:
+        myPiece = ' B'
+    if isValidPosition(x-1,y-1): # Check for out of bounds.
+        if board[x-1][y-1] == ' r' or board[x-1][y-1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x-2,y-2): # Check for out of bounds.
+                if board[x-2][y-2] == ' -': # Check if it is empty space.
+                    temp_board = copy.deepcopy(board)
+                    temp_board[x][y] = ' -'
+                    temp_board[x-1][y-1] = ' -'
+                    temp_board[x-2][y-2] = myPiece
+                    myMoves.append([x-2,y-2])
+                    moveArr, boardArr = eatEverything(board, x-2, y-2, crowned, myMoves)
+    if isValidPosition(x+1,y-1): # Check for out of bounds.
+        if board[x+1][y-1] == ' r' or board[x+1][y-1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x+2,y-2): # Check for out of bounds.
+                if board[x+2][y-2] == ' -': # Check if it is empty space.
+                    temp_board = copy.deepcopy(board)
+                    temp_board[x][y] = ' -'
+                    temp_board[x+1][y-1] = ' -'
+                    temp_board[x+2][y-2] = myPiece
+                    myMoves.append([x+2,y-2])
+                    moveArr, boardArr = eatEverything(board, x+2, y-2, crowned, myMoves)
+    if crowned and isValidPosition(x-1,y+1): # Check for out of bounds.
+        if board[x-1][y+1] == ' r' or board[x-1][y+1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x-2,y+2): # Check for out of bounds.
+                if board[x-2][y+2] == ' -': # Check if it is empty space.
+                    temp_board = copy.deepcopy(board)
+                    temp_board[x][y] = ' -'
+                    temp_board[x-1][y+1] = ' -'
+                    temp_board[x-2][y+2] = myPiece
+                    myMoves.append([x-2,y+2])
+                    moveArr, boardArr = eatEverything(board, x-2, y+2, crowned, myMoves)
+    if crowned and isValidPosition(x+1,y+1): # Check for out of bounds.
+        if board[x+1][y+1] == ' r' or board[x+1][y+1] == ' R': # Check if there's an enemy piece.
+            if isValidPosition(x+2,y+2): # Check for out of bounds.
+                if board[x+2][y+2] == ' -': # Check if it is empty space.
+                    temp_board = copy.deepcopy(board)
+                    temp_board[x][y] = ' -'
+                    temp_board[x+1][y+1] = ' -'
+                    temp_board[x+2][y+2] = myPiece
+                    myMoves.append([x+2,y+2])
+                    moveArr, boardArr = eatEverything(board, x+2, y+2, crowned, myMoves)
+    return moveArr, boardArr
+
+def printBoardSimple(board):
+    for i in range(8):
+        for j in range(8):
+            print(board[j][i], end = "")
+        print()
+        
+#printBoardSimple(sampleArr)
+#print(movePieces(sampleArr, 0, 6))
 
 def main():
     newGame = Board()
