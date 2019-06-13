@@ -576,6 +576,14 @@ def printBoardSimple(board):
 #printBoardSimple(sampleArr)
 #print(movePieces(sampleArr, 0, 6))
 
+
+
+
+
+
+
+
+
 def main():
     newGame = Board()
     results = newGame.collectCheckers()
