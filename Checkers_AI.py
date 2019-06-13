@@ -1,4 +1,4 @@
-import sys
+import sys 
 import time
 class Board:
     """This class is designed to encapsulate key functionality for our Checkers AI project including
