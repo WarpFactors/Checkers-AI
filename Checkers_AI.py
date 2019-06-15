@@ -51,6 +51,8 @@ class Board:
 
 
     def validCoords(self, start):
+        """Helper function that returns True if the x and y values are both
+        between 0 and 8"""
         x, y = start
         if (x >= 0) and (x < 8) and (y >= 0) and (y < 8):
             return True
@@ -75,7 +77,7 @@ class Board:
         """Designed for specific use by human players. If the entered tuple
         of x, y coordinates has a neighboring tile occupied by an enemy piece
         this function returns True, otherwise, False is returned."""
-        print("Watts up dooog?!\n\n")
+
         x, y = start
         currColor = self.boardState[x][y]
         if (currColor == ' R'):
@@ -409,41 +411,37 @@ class Board:
                     color = self.boardState[strtX][strtY]
                     startFull = (start[0], start[1], self.boardState[start[0]][start[1]])
                             
-                    validTargetChoices = self.collectPosTargets(startFull)
-
+                    
                     while (gotTrgt == False):
-                        print("Please select a valid tile from above to jump to    ** 0,0 represents the TOP-LEFT corner **")
+                        validTargetChoices = self.collectPosTargets(startFull)
+                        print("Please select a valid tile from above to jump to")
                         trgtX, trgtY = input("Format your input as follows - X Y:  ").split(' ')
                         trgtX = int(trgtX)
                         trgtY = int(trgtY)
-                        if self.validCoords((trgtX,trgtY)):
-                            trgtColor = self.boardState[trgtX][trgtY]
-                            target = (trgtX, trgtY)
-                            #targetFull = (trgtX, trgtY, trgtColor)
-            #            print (validTargetChoices)
-             #           print (targetFull)
+
+                        if self.validCoords((trgtX, trgtY)):
+                            target = (trgtX, trgtY)                            
+                            if target in validTargetChoices:
+                                trgtColor = self.boardState[trgtX][trgtY]                            
+                                moveList.append(target)
+                                gotTrgt == True
+                                trgtPass += 1
+                                
+                    while(self.adjTileEnemies(moveList[trgtPass - 1]) == True):
+                        nxtMove = (moveList[trgtPass-1][0], moveList[trgtPass-1][1])
+                        nxtColor = self.boardState[nxtMove[0]][nxtMove[1]]
+                        nxtMoveFull = (nxtMove[0], nxtMove[1], nxtColor)
+                        validTargetChoices = self.collectPosTargets(nxtMoveFull, True)
+                        print("ZZZZ\n")
+                        print("Please select a valid tile from above to jump to    ** 0,0 represents the TOP-LEFT corner **")
+                        trgtX = int(trgtX)
+                        trgtY = int(trgtY)
+                        target = (trgtX, trgtY)
                         if target in validTargetChoices:
                             moveList.append(target)
+                            print(moveList)
                             trgtPass += 1
-                            gotTrgt = True
-                    
-                            while(self.adjTileEnemies(moveList[trgtPass - 1]) == True):
-                                nxtMove = (moveList[trgtPass-1][0], moveList[trgtPass-1][1])
-                                nxtColor = self.boardState[nxtMove[0]][nxtMove[1]]
-                                nxtMoveFull = (nxtMove[0], nxtMove[1], nxtColor)
-                                validTargetChoices = self.collectPosTargets(nxtMoveFull, True)
-                                print("ZZZZ\n")
-                                print("Please select a valid tile from above to jump to    ** 0,0 represents the TOP-LEFT corner **")
-                                trgtX = int(trgtX)
-                                trgtY = int(trgtY)
-                                target = (trgtX, trgtY)
-                                if target in validTargetChoices:
-                                    moveList.append(target)
-                                    print(moveList)
-                                    trgtPass += 1
 
-                        #    gotInput == True
-                        
                         gotInput == True
             self.turnCount += 1
             self.move(color, (strtX, strtY), moveList)
