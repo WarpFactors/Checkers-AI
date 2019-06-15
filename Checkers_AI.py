@@ -1,22 +1,19 @@
+""" Written By: Matthew Harrison and Hansen Liman
+    Last Modified: 6/14/19
+    Course: CPSC 4610 
+    Instructor: Professor Khadivi
+
+    DISCLAIMER: We have not received unauthorized aid on this assignment.
+    We both understand the answers that we have submitted and they have not been
+    directly copied from another source, but instead are written in our own words.
+"""
+import copy
 import sys
 import time
 class Board:
     """This class is designed to encapsulate key functionality for our Checkers AI project including
     functions to initialize the board as well as, to carry out moves, coordinate turns, and print the current
     state of the game board"""
-
-
-
-    #AI RETURNS: [(strtXPos, strtYPos), [(mv1X, mv1Y), ...]]
-    #boardState = [x][y] = Color
-
-
-    # Each killed enemy = 5pt
-    # vulnerable = -1
-    # basic jump = 2
-    # kill kill jump vulnerable = 6 ->
-
-    
 
 
 
@@ -348,7 +345,7 @@ class Board:
             # This occurs if jumping a piece and sets the game to skip representing
             # the intermediate jump onto the opponent checker piece
 
-            print("Capture detected in move()\n\n")
+            print("Capture detected in move\n\n")
             cappedChkr = True
             deltaX = i-x
             deltaY = j-y
@@ -373,18 +370,26 @@ class Board:
 
 
 
-    def playGame(self):
+    def playGame(self):        
         while self.running == True:
-            if self.turnCount % 2 == 0: plyrColors = [' b', ' B']
-            else: plyrColors = [' r', ' R']
+            if self.turnCount % 2 == 0: plyrColors = [' r', ' R']
+            else: plyrColors = [' b', ' B']
             
             gotInput = False
             gotStrt = False
             gotTrgt = False
-            capPiece = False
             trgtPass = 0
             moveList = []
             color = ''
+            
+            if (self.turnCount % 2 == 1):                 
+                aiPlayerMoveSet = []
+                aiPlayerMoveSet = aiPlay(self.boardState)
+                print(aiPlayerMoveSet)
+                strtX, strtY = aiPlayerMoveSet[0]
+                moveList = aiPlayerMoveSet[1:]
+                strtColor = self.boardState[strtX][strtY]
+                self.move(strtColor, (strtX, strtY), moveList)
 
             while gotInput == False:
                 
@@ -413,6 +418,8 @@ class Board:
                             
                     
                     while (gotTrgt == False):
+                        # User input loop for checker jump(s). Multiple jumps occur
+                        # only when an enemy piece has been captured.
                         validTargetChoices = self.collectPosTargets(startFull)
                         print("Please select a valid tile from above to jump to")
                         trgtX, trgtY = input("Format your input as follows - X Y:  ").split(' ')
@@ -424,7 +431,8 @@ class Board:
                             if target in validTargetChoices:
                                 trgtColor = self.boardState[trgtX][trgtY]                            
                                 moveList.append(target)
-                                gotTrgt == True
+                                gotTrgt = True
+                                gotInput = True
                                 trgtPass += 1
                                 
                     while(self.adjTileEnemies(moveList[trgtPass - 1]) == True):
@@ -432,7 +440,6 @@ class Board:
                         nxtColor = self.boardState[nxtMove[0]][nxtMove[1]]
                         nxtMoveFull = (nxtMove[0], nxtMove[1], nxtColor)
                         validTargetChoices = self.collectPosTargets(nxtMoveFull, True)
-                        print("ZZZZ\n")
                         print("Please select a valid tile from above to jump to    ** 0,0 represents the TOP-LEFT corner **")
                         trgtX = int(trgtX)
                         trgtY = int(trgtY)
@@ -440,14 +447,14 @@ class Board:
                         if target in validTargetChoices:
                             moveList.append(target)
                             print(moveList)
-                            trgtPass += 1
-
-                        gotInput == True
+                            trgtPass += 1 
+                        else: 
+                            gotTrgt = True
+                            gotInput = True
+            gotInput = True
+            self.move(color, (strtX, strtY), moveList)            
             self.turnCount += 1
-            self.move(color, (strtX, strtY), moveList)
-
-        
-
+            
 sampleArr = [[' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -']]
 sampleArr = [[' -', ' B', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' R', ' -', ' -', ' -', ' -', ' -'], [' -', ' -', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' R', ' -', ' R', ' -', ' B', ' -'], [' -', ' -', ' -', ' -', ' -', ' -', ' -', ' -'], [' -', ' -', ' -', ' -', ' R', ' -', ' B', ' -'], [' -', ' -', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' -', ' -', ' -', ' -', ' B', ' -']]
 
@@ -920,11 +927,13 @@ def breakArray(arr): # Breaks a layer in an array
 def aiPlay(board): # Given a board, gives best move for b, returns an array of moves. First element is the piece it wants to move.
     moveArr, biggestHeuristic = maximizeBoard(sampleArr, 3)
     return moveArr
+    
         
 
 def main():
     newGame = Board()
     results = newGame.collectCheckers(0,0)
     newGame.playGame()
+    
     time.sleep(10)
 main()
