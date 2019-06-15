@@ -44,6 +44,7 @@ class Board:
                     newRow.append(' -')
             self.boardState.append(newRow)
         self.print_board()
+       
 
 
 
@@ -181,7 +182,7 @@ class Board:
             #print("In collect pass: ", x, y, c)
             if self.validStrt((x, y)) == True:
                 if (mustAttack == True) or (self.adjTileEnemies((x, y)) == True):
-                    print(self.adjTileEnemies((x,y)))
+       #             print(self.adjTileEnemies((x,y)))
                     checkersCanCap.append((x,y,c))
                     checkersValid.append((x,y,c))
                     mustAttack = True
@@ -353,15 +354,14 @@ class Board:
             #print("Resulting change in x, y: ", deltaX, ", ", deltaY)
             i = x + 2*deltaX
             j = y + 2*deltaY            
-
-        if (plyrColor == ' r') and (j == 7):
-            plyrColor = ' R'
-
-        elif (plyrColor == ' b') and (j == 0):
-            plyrColor = ' B'
+            if (self.validCoords((i,j)) == True):
+                if (plyrColor == ' r') and (j == 7):
+                    plyrColor = ' R'
+                elif (plyrColor == ' b') and (j == 0):
+                    plyrColor = ' B'                
+                self.boardState[i][j] = plyrColor
         
-        self.boardState[i][j] = plyrColor
-        self.print_board()
+            self.print_board()
         
         if self.gameWon() == True: return        
         elif cappedChker == True: self.move(plyrColor, newLocation[1], newLocation[2:])
@@ -388,7 +388,7 @@ class Board:
                 print(aiPlayerMoveSet)
                 strtX, strtY = aiPlayerMoveSet[0]
                 moveList = aiPlayerMoveSet[1:]
-                strtColor = self.boardState[strtX][strtY]
+                strtColor = self.boardState[strtX][strtY]               
                 self.move(strtColor, (strtX, strtY), moveList)
 
             while gotInput == False:
@@ -925,7 +925,7 @@ def breakArray(arr): # Breaks a layer in an array
     return newArr
 
 def aiPlay(board): # Given a board, gives best move for b, returns an array of moves. First element is the piece it wants to move.
-    moveArr, biggestHeuristic = maximizeBoard(sampleArr, 3)
+    moveArr, biggestHeuristic = maximizeBoard(board, 3)
     return moveArr
     
         
