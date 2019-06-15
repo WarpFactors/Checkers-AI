@@ -2,7 +2,6 @@
     Last Modified: 6/14/19
     Course: CPSC 4610 
     Instructor: Professor Khadivi
-
     DISCLAIMER: We have not received unauthorized aid on this assignment.
     We both understand the answers that we have submitted and they have not been
     directly copied from another source, but instead are written in our own words.
@@ -42,15 +41,16 @@ class Board:
                     newRow.append(self.colorsAI[0])
                 else:
                     newRow.append(' -')
-            self.boardState.append(newRow)
-        self.print_board()
-       
+            self.boardState.append(newRow)        
+            self.print_board()
+        
 
 
 
     def validCoords(self, start):
         """Helper function that returns True if the x and y values are both
         between 0 and 8"""
+
         x, y = start
         if (x >= 0) and (x < 8) and (y >= 0) and (y < 8):
             return True
@@ -291,17 +291,19 @@ class Board:
 
 
     def print_board(self):
-        """A simple function designed to print out the current state of the board
+        """simple function designed to print out the current state of the board
         This function also indexes each tile along the top and left sides to aid
         in finding proper coordinates"""
-
+        
         time.sleep(1)
         output = []
         output.append('    0 1 2 3 4 5 6 7')
         output.append('  ___________________')        
-        for y in range(8):
+        for x in range(8):
             newRow = []
-            for x in range(8):                
+            for y in range(8):                
+                
+                print(self.boardState[x][y])
                 if x == 0:
                     newRow.append(y)
                     newRow.append(' |')
@@ -317,9 +319,9 @@ class Board:
         for row in output:
             print(*row, sep='')
 
+    
 
-
-    def move(self, plyrColor, pieceToMove, newLocation):
+    def move(self, pieceToMove, newLocation):
         """A Simple recursive function that takes a tuple for the current position
         of the piece that is to be moved, and a list of tuples, newLocation that
         holds the the x,y coordinates and the current color on the tile for each
@@ -327,45 +329,54 @@ class Board:
         string that uses a leading whitespace followed by R or r, for the red team, 
         and B or b, for the blue team and - for an empty tile.
         black team, and - for an empty tile"""
-        
         cappedChker = False
+
         if len(newLocation) == 0: return
         
-        #Capture useful info from tile tuple of (x, y, color) info
-        nextMove = newLocation[0]
+        nextMove = newLocation[0]                
         (x, y) = (pieceToMove[0], pieceToMove[1])
         (i, j) = (nextMove[0], nextMove[1])
-        
-        if self.boardState[x][y] in self.colorsAI: plyClrs = self.colorsAI
-        else: plyClrs = self.colorsPlyr
+        trgtColor = self.boardState[i][j]
+        plyrColor = self.boardState[x][y]
+        if (plyrColor in self.colorsPlyr):
+            if (trgtColor not in self.colorsPlyr and trgtColor != ' -'):
+                cappedChkr = True                
+        elif (plyrColor in self.colorsAI):
+            if (trgtColor not in self.colorsAI and trgtColor != ' -'):
+                cappedChkr = True
+
+        self.boardState[i][j] = plyrColor
         self.boardState[x][y] = ' -'
-                
-        if (self.boardState[i][j] not in plyClrs) and (self.boardState[i][j] != ' -'):
+        self.print_board()
+        
+        deltaX = i-x
+        deltaY = j-y             
+        x = i
+        y = j
+        
+        if (cappedChker):
             # This occurs if jumping a piece and sets the game to skip representing
             # the intermediate jump onto the opponent checker piece
-
-            print("Capture detected in move\n\n")
-            cappedChkr = True
-            deltaX = i-x
-            deltaY = j-y             
+            print("Capture detected in move\n\n")                        
             self.boardState[i][j] = ' -'
-            print (self.boardState[i][j])
+            self.boardState[x + deltaX][y + deltaY] = plyrColor
+            # print("1C")
+            self.print_board()
+            
+            #print (self.boardState[i][j])
             
             #print("Resulting change in x, y: ", deltaX, ", ", deltaY)
-            i = x + 2*deltaX
-            j = y + 2*deltaY            
-            if (self.validCoords((i,j)) == True):
-                if (plyrColor == ' r') and (j == 7):
-                    plyrColor = ' R'
-                elif (plyrColor == ' b') and (j == 0):
-                    plyrColor = ' B'                
-                self.boardState[i][j] = plyrColor
-            else: print("No good, really very rubbish!!!\nn")
+            #i = x + 2*deltaX
+            #j = y + 2*deltaY            
+            
+            #self.boardState[i][j] = plyrColor
+            
+            print("No good, really very rubbish!!!\nn")
             self.print_board()
         
         if self.gameWon() == True: return        
-        elif cappedChker == True: self.move(plyrColor, newLocation[1], newLocation[2:])
-        elif len(newLocation) > 1: self.move(plyrColor, newLocation[0], newLocation[1:])
+        elif cappedChker == True: self.move(newLocation[1], newLocation[2:])
+        elif len(newLocation) > 1: self.move(newLocation[0], newLocation[1:])
         else: return
 
 
@@ -389,14 +400,17 @@ class Board:
                 strtX, strtY = aiPlayerMoveSet[0]
                 moveList = aiPlayerMoveSet[1:]
                 strtColor = self.boardState[strtX][strtY]               
-                self.move(strtColor, (strtX, strtY), moveList) 
+                self.move((strtX, strtY), moveList)
+                #print("1B")
+                self.print_board()
+        
                 self.print_board()
                 self.turnCount += 1
 
             while gotInput == False:
                 
                 if ' R' in plyrColors or ' B' in plyrColors:
-                    print("It is now the", plyrColors[1], " team's turn!\n")         
+                    print("It is now the", plyrColors[1], " team's turn!")         
                     validStartChoices = self.collectPosStart()
                 
                     while gotStrt == False:
@@ -412,7 +426,7 @@ class Board:
                             if (strtX, strtY, strtColor) in validStartChoices:
                                 gotStrt = True
                         if gotStrt == False:
-                            print("\nPlease enter a valid checker piece of your color")
+                            print("Please enter a valid checker piece of your color")
                                                         
                     start = (strtX, strtY)     
                     color = self.boardState[strtX][strtY]
@@ -454,18 +468,13 @@ class Board:
                             gotTrgt = True
                             gotInput = True
             gotInput = True
-            self.move(color, (strtX, strtY), moveList)            
+            self.move( (strtX, strtY), moveList)            
             self.turnCount += 1
             
-sampleArr = [[' -', ' -', ' -', ' b', ' -', ' b', ' -', ' -'],
-             [' r', ' -', ' -', ' -', ' -', ' -', ' b', ' -'],
-             [' -', ' r', ' -', ' r', ' -', ' -', ' -', ' -'],
-             [' r', ' -', ' r', ' -', ' -', ' -', ' b', ' -'],
-             [' -', ' -', ' -', ' r', ' -', ' -', ' -', ' -'],
-             [' -', ' -', ' -', ' -', ' -', ' -', ' b', ' -'],
-             [' -', ' r', ' -', ' -', ' -', ' -', ' -', ' b'],
-             [' B', ' -', ' -', ' -', ' b', ' -', ' b', ' -']]
-def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of possible moves that the piece will end up. Returns 0 if it's no piece. This is for blue.
+#sampleArr = [[' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -']]
+sampleArr = [[' -', ' B', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' R', ' -', ' -', ' -', ' -', ' -'], [' -', ' -', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' R', ' -', ' R', ' -', ' B', ' -'], [' -', ' -', ' -', ' -', ' -', ' -', ' -', ' -'], [' -', ' -', ' -', ' -', ' R', ' -', ' B', ' -'], [' -', ' -', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' -', ' -', ' -', ' -', ' B', ' -']]
+
+def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of possible moves that the piece will end up. Returns 0 if it's no piece.
     moveList = []
     boardList = []
     if board[x][y] == ' -' or board[x][y] == ' r' or board[x][y] == ' R':
@@ -476,6 +485,8 @@ def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of pos
         crowned = True
     # Produce attacking moves.
     attack_moveArr, attack_boardArr = eatEverythingBlue(board, x, y, crowned, [[x,y]])
+    #print("Mordekaiser")
+    #print(attack_boardArr)
     myPiece = ' b'
     if crowned == True:
         myPiece = ' B'
@@ -485,15 +496,25 @@ def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of pos
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
             temp_board[x-1][y-1] = myPiece
+            #print(board[x-1][y-1])
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x-1,y-1]])
+            #print(boardList)
     if isValidPosition(x+1,y-1):
         if board[x+1][y-1] == ' -':
             temp_board = copy.deepcopy(board)
+            #print(temp_board)
             temp_board[x][y] = ' -'
             temp_board[x+1][y-1] = myPiece
+            #print(board[x+1][y-1])
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x+1,y-1]])
+            #print("heya there")
+            #print(boardList)
+            
+            #print()
     # Produce non-attacking moves (crowned).
     if isValidPosition(x-1,y+1) and crowned:
         if board[x-1][y+1] == ' -':
@@ -501,25 +522,36 @@ def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of pos
             temp_board[x][y] = ' -'
             temp_board[x-1][y+1] = ' B'
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x-1,y+1]])
+            #print("heya there")
+            #print(boardList)
     if isValidPosition(x+1,y+1) and crowned:
         if board[x+1][y+1] == ' -':
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
             temp_board[x+1][y+1] = ' B'
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x+1,y+1]])
+            #print(boardList)
+    #print("ughhh")
+    #print(attack_moveArr)
+    #print(attack_boardArr)
+    #return moveList, boardList, attack_moveArr, attack_boardArr
     if(len(attack_moveArr[0]) != 1):
         mergeArray(moveList, attack_moveArr)
         mergeArray(boardList, attack_boardArr)
     return moveList, boardList
             
 
-def isValidPosition(x,y): # Checks whether the coordinate is inside the board.
+def isValidPosition(x,y):
     return x >= 0 and y >= 0 and x < 8 and y < 8
     
-def eatEverythingBlue(board, x, y, crowned, myMoves): # Simulates all the moves, but only for capturing pieces. Blue only.
+def eatEverythingBlue(board, x, y, crowned, myMoves):
     canEat = False
+    #print(x,y)
+    #print("test")
     if isValidPosition(x-1,y-1): # Check for out of bounds.
         if board[x-1][y-1] == ' r' or board[x-1][y-1] == ' R': # Check if there's an enemy piece.
             if isValidPosition(x-2,y-2): # Check for out of bounds.
@@ -536,11 +568,17 @@ def eatEverythingBlue(board, x, y, crowned, myMoves): # Simulates all the moves,
                 if board[x-2][y+2] == ' -': # Check if it is empty space.
                     canEat = True
     if crowned and isValidPosition(x+1,y+1): # Check for out of bounds.
+        #print(board[y][x])
+        #printBoardSimple(board)
         if board[x+1][y+1] == ' r' or board[x+1][y+1] == ' R': # Check if there's an enemy piece.
+            #print("test")
             if isValidPosition(x+2,y+2): # Check for out of bounds.
                 if board[x+2][y+2] == ' -': # Check if it is empty space.
                     canEat = True
     if canEat == False: # Return the move list and board.
+        #print("Can't eat anymore")
+        #printBoardSimple(board)
+        #print()
         return [myMoves], [board]
     moveList = []
     myPiece = ' b'
@@ -556,11 +594,14 @@ def eatEverythingBlue(board, x, y, crowned, myMoves): # Simulates all the moves,
                     temp_board[x][y] = ' -'
                     temp_board[x-1][y-1] = ' -'
                     temp_board[x-2][y-2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x-2,y-2])
+                    #print("hello1")
                     moveArr, boardArr = eatEverythingBlue(temp_board, x-2, y-2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
+    #print(x,y)
     if isValidPosition(x+1,y-1): # Check for out of bounds.
         if board[x+1][y-1] == ' r' or board[x+1][y-1] == ' R': # Check if there's an enemy piece.
             if isValidPosition(x+2,y-2): # Check for out of bounds.
@@ -569,8 +610,10 @@ def eatEverythingBlue(board, x, y, crowned, myMoves): # Simulates all the moves,
                     temp_board[x][y] = ' -'
                     temp_board[x+1][y-1] = ' -'
                     temp_board[x+2][y-2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x+2,y-2])
+                    #print("hello2")
                     moveArr, boardArr = eatEverythingBlue(temp_board, x+2, y-2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
@@ -578,12 +621,15 @@ def eatEverythingBlue(board, x, y, crowned, myMoves): # Simulates all the moves,
         if board[x-1][y+1] == ' r' or board[x-1][y+1] == ' R': # Check if there's an enemy piece.
             if isValidPosition(x-2,y+2): # Check for out of bounds.
                 if board[x-2][y+2] == ' -': # Check if it is empty space.
+                    #print(x,y)
                     temp_board = copy.deepcopy(board)
                     temp_board[x][y] = ' -'
                     temp_board[x-1][y+1] = ' -'
                     temp_board[x-2][y+2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x-2,y+2])
+                    #print("hello3")
                     moveArr, boardArr = eatEverythingBlue(temp_board, x-2, y+2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
@@ -595,14 +641,20 @@ def eatEverythingBlue(board, x, y, crowned, myMoves): # Simulates all the moves,
                     temp_board[x][y] = ' -'
                     temp_board[x+1][y+1] = ' -'
                     temp_board[x+2][y+2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x+2,y+2])
+                    #print("hello4")
                     moveArr, boardArr = eatEverythingBlue(temp_board, x+2, y+2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
+    #print("These are my moves: ", end="")
+    #print(allMoveArr)
     return allMoveArr, allBoardArr
 
-def movePiecesRed(board, x, y): # Given the board, x, y, return an array of possible moves that the piece will end up. Returns 0 if it's no piece. For Red.
+"""---------------------"""
+
+def movePiecesRed(board, x, y): # Given the board, x, y, return an array of possible moves that the piece will end up. Returns 0 if it's no piece.
     moveList = []
     boardList = []
     if board[x][y] == ' -' or board[x][y] == ' b' or board[x][y] == ' B':
@@ -613,6 +665,8 @@ def movePiecesRed(board, x, y): # Given the board, x, y, return an array of poss
         crowned = True
     # Produce attacking moves.
     attack_moveArr, attack_boardArr = eatEverythingRed(board, x, y, crowned, [[x,y]])
+    #print("Mordekaiser")
+    #print(attack_boardArr)
     myPiece = ' r'
     if crowned == True:
         myPiece = ' R'
@@ -622,15 +676,24 @@ def movePiecesRed(board, x, y): # Given the board, x, y, return an array of poss
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
             temp_board[x+1][y+1] = myPiece
+            #print(board[x+1][y+1])
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x+1,y+1]])
+            #print(boardList)
     if isValidPosition(x-1,y+1):
         if board[x-1][y+1] == ' -':
             temp_board = copy.deepcopy(board)
+            #print(temp_board)
             temp_board[x][y] = ' -'
             temp_board[x-1][y+1] = myPiece
+            #print(board[x-1][y+1])
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x-1,y+1]])
+            #print("heya there")
+            #print(boardList)
+            #print()
     # Produce non-attacking moves (crowned).
     if isValidPosition(x+1,y-1) and crowned:
         if board[x+1][y-1] == ' -':
@@ -638,21 +701,36 @@ def movePiecesRed(board, x, y): # Given the board, x, y, return an array of poss
             temp_board[x][y] = ' -'
             temp_board[x+1][y-1] = ' R'
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x+1,y-1]])
+            #print("heya there")
+            #print(boardList)
     if isValidPosition(x-1,y-1) and crowned:
         if board[x-1][y-1] == ' -':
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
             temp_board[x-1][y-1] = ' R'
             boardList.append(temp_board)
+            #printBoardSimple(temp_board)
             moveList.append([[x,y],[x-1,y-1]])
+            #print(boardList)
+    #print("+++++++++++++")
+    #print(moveList)
+    #print("+++++++++++++")
+    #print(attack_moveArr)
+    #print(attack_boardArr)
+    #return moveList, boardList, attack_moveArr, attack_boardArr
     if(len(attack_moveArr[0]) != 1):
         mergeArray(moveList, attack_moveArr)
         mergeArray(boardList, attack_boardArr)
+    #print(attack_moveArr)
+    #print("--------------")
     return moveList, boardList
     
-def eatEverythingRed(board, x, y, crowned, myMoves): # Simulates all capturing movements. For red.
+def eatEverythingRed(board, x, y, crowned, myMoves):
     canEat = False
+    #print(x,y)
+    #print("test")
     if isValidPosition(x+1,y+1): # Check for out of bounds.
         if board[x+1][y+1] == ' b' or board[x+1][y+1] == ' B': # Check if there's an enemy piece.
             if isValidPosition(x+2,y+2): # Check for out of bounds.
@@ -669,11 +747,17 @@ def eatEverythingRed(board, x, y, crowned, myMoves): # Simulates all capturing m
                 if board[x+2][y-2] == ' -': # Check if it is empty space.
                     canEat = True
     if crowned and isValidPosition(x-1,y-1): # Check for out of bounds.
+        #print(board[y][x])
+        #printBoardSimple(board)
         if board[x-1][y-1] == ' b' or board[x-1][y-1] == ' B': # Check if there's an enemy piece.
+            #print("test")
             if isValidPosition(x-2,y-2): # Check for out of bounds.
                 if board[x-2][y-2] == ' -': # Check if it is empty space.
                     canEat = True
     if canEat == False: # Return the move list and board.
+        #print("Can't eat anymore")
+        #printBoardSimple(board)
+        #print()
         return [myMoves], [board]
     moveList = []
     myPiece = ' r'
@@ -689,11 +773,14 @@ def eatEverythingRed(board, x, y, crowned, myMoves): # Simulates all capturing m
                     temp_board[x][y] = ' -'
                     temp_board[x+1][y+1] = ' -'
                     temp_board[x+2][y+2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x+2,y+2])
+                    #print("hello1")
                     moveArr, boardArr = eatEverythingRed(temp_board, x+2, y+2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
+    #print(x,y)
     if isValidPosition(x-1,y+1): # Check for out of bounds.
         if board[x-1][y+1] == ' b' or board[x-1][y+1] == ' B': # Check if there's an enemy piece.
             if isValidPosition(x-2,y+2): # Check for out of bounds.
@@ -702,8 +789,10 @@ def eatEverythingRed(board, x, y, crowned, myMoves): # Simulates all capturing m
                     temp_board[x][y] = ' -'
                     temp_board[x-1][y+1] = ' -'
                     temp_board[x-2][y+2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x-2,y+2])
+                    #print("hello2")
                     moveArr, boardArr = eatEverythingRed(temp_board, x-2, y+2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
@@ -711,12 +800,15 @@ def eatEverythingRed(board, x, y, crowned, myMoves): # Simulates all capturing m
         if board[x+1][y-1] == ' b' or board[x+1][y-1] == ' B': # Check if there's an enemy piece.
             if isValidPosition(x+2,y-2): # Check for out of bounds.
                 if board[x+2][y-2] == ' -': # Check if it is empty space.
+                    #print(x,y)
                     temp_board = copy.deepcopy(board)
                     temp_board[x][y] = ' -'
                     temp_board[x+1][y-1] = ' -'
                     temp_board[x+2][y-2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x+2,y-2])
+                    #print("hello3")
                     moveArr, boardArr = eatEverythingRed(temp_board, x+2, y-2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
@@ -728,25 +820,29 @@ def eatEverythingRed(board, x, y, crowned, myMoves): # Simulates all capturing m
                     temp_board[x][y] = ' -'
                     temp_board[x-1][y-1] = ' -'
                     temp_board[x-2][y-2] = myPiece
+                    #printBoardSimple(temp_board)
                     temp_myMoves = copy.deepcopy(myMoves)
                     temp_myMoves.append([x-2,y-2])
+                    #print("hello4")
                     moveArr, boardArr = eatEverythingRed(temp_board, x-2, y-2, crowned, temp_myMoves)
                     mergeArray(allMoveArr, moveArr)
                     mergeArray(allBoardArr, boardArr)
+    #print("These are my moves: ", end="")
+    #print(allMoveArr)
     return allMoveArr, allBoardArr
 
-def mergeArray(mainArr, subArr): # Merges two arrays together.
+def mergeArray(mainArr, subArr):
     for i in range(len(subArr)):
         mainArr.append(subArr[i])
     return mainArr
 
-def printBoardSimple(board): # Prints a board from an array.
+def printBoardSimple(board):
     for i in range(8):
         for j in range(8):
             print(board[j][i], end = "")
         print()
 
-def redLocations(board): # Returns all red pieces coordinates.
+def redLocations(board):
     arr = []
     for i in range(8):
         for j in range(8):
@@ -754,12 +850,16 @@ def redLocations(board): # Returns all red pieces coordinates.
                 arr.append([i,j])
     return arr
 
-def blueLocations(board): # Returns all blue pieces coordinates.
+def blueLocations(board):
     arr = []
+    #print("howdy")
     for i in range(8):
+        #print("howdy" , i)
         for j in range(8):
+            #print("wtf" , j)
             if board[i][j] == ' B' or board[i][j] == ' b':
                 arr.append([i,j])
+                #print(arr)
     return arr
 
 def calculateHeuristic(board): # Calculate a heuristic value for the blue team.
@@ -775,6 +875,8 @@ def generatePossibilities(board, team): # Given a board and a player (either B o
         myPieces = blueLocations(board)
         for i in range(len(myPieces)):
             temp_moves, temp_boards = movePiecesBlue(board, myPieces[i][0], myPieces[i][1])
+            #print("@@@@@@@@@@@@@@@@")
+            #print(temp_moves)
             if temp_moves != []:
                 moveList.append(temp_moves)
                 boardList.append(temp_boards)
@@ -788,7 +890,7 @@ def generatePossibilities(board, team): # Given a board and a player (either B o
     return moveList, boardList
 
 
-def maximizeBoard(board, layer): # Given board, maximize the values. Layer param controls how many layers the tree will have.
+def maximizeBoard(board, layer = 3): # Given board, maximize the values
     layer -= 1
     heuristicArr = [] # Initialize array
     moveArr, boardArr = generatePossibilities(board,' b') # Generate all possibilities for the current board
@@ -800,6 +902,13 @@ def maximizeBoard(board, layer): # Given board, maximize the values. Layer param
             heuristicArr.append(heuristicVal)
     else:
         for i in range(len(boardArr)):
+            #print("******************")
+            #print(len(boardArr[1]))
+            #print(len(moveArr[1]))
+            #print("******************")
+            #print(moveArr)
+            #print()
+            #print(breakArray(moveArr))
             heuristicArr.append(calculateHeuristic(boardArr[i]))
     biggestHeuristic = max(heuristicArr)
     posOfMax = heuristicArr.index(biggestHeuristic)
@@ -807,6 +916,7 @@ def maximizeBoard(board, layer): # Given board, maximize the values. Layer param
     return moveArr[posOfMax], biggestHeuristic # Returns best move and max heursitic value
 
 def minimizeBoard(board, layer): # Given board, minimize the values
+    #print("wazzup")
     layer -= 1
     heuristicArr = [] # Initialize array
     moveArr, boardArr = generatePossibilities(board,' r') # Generate all possibilities for the current board
@@ -833,6 +943,8 @@ def breakArray(arr): # Breaks a layer in an array
 def aiPlay(board): # Given a board, gives best move for b, returns an array of moves. First element is the piece it wants to move.
     moveArr, biggestHeuristic = maximizeBoard(board, 3)
     return moveArr
+    
+        
 
 def main():
 
