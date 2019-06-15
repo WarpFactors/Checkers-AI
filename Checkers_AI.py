@@ -457,14 +457,7 @@ class Board:
             self.move(color, (strtX, strtY), moveList)            
             self.turnCount += 1
             
-sampleArr = [[' -', ' -', ' -', ' b', ' -', ' b', ' -', ' -'],
-             [' r', ' -', ' -', ' -', ' -', ' -', ' b', ' -'],
-             [' -', ' r', ' -', ' r', ' -', ' -', ' -', ' -'],
-             [' r', ' -', ' r', ' -', ' -', ' -', ' b', ' -'],
-             [' -', ' -', ' -', ' r', ' -', ' -', ' -', ' -'],
-             [' -', ' -', ' -', ' -', ' -', ' -', ' b', ' -'],
-             [' -', ' r', ' -', ' -', ' -', ' -', ' -', ' b'],
-             [' B', ' -', ' -', ' -', ' b', ' -', ' b', ' -']]
+
 def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of possible moves that the piece will end up. Returns 0 if it's no piece. This is for blue.
     moveList = []
     boardList = []
@@ -801,6 +794,8 @@ def maximizeBoard(board, layer): # Given board, maximize the values. Layer param
     else:
         for i in range(len(boardArr)):
             heuristicArr.append(calculateHeuristic(boardArr[i]))
+    if heuristicArr == []:
+        return [], 99
     biggestHeuristic = max(heuristicArr)
     posOfMax = heuristicArr.index(biggestHeuristic)
     
@@ -819,6 +814,8 @@ def minimizeBoard(board, layer): # Given board, minimize the values
     else:
         for i in range(len(boardArr)):
             heuristicArr.append(calculateHeuristic(boardArr[i]))
+    if heuristicArr == []:
+        return [], 99
     smallestHeuristic = min(heuristicArr)
     posOfMin = heuristicArr.index(smallestHeuristic)
     return moveArr[posOfMin], smallestHeuristic # Returns worse move and heuristic value
@@ -831,9 +828,12 @@ def breakArray(arr): # Breaks a layer in an array
     return newArr
 
 def aiPlay(board): # Given a board, gives best move for b, returns an array of moves. First element is the piece it wants to move.
+    if len(blueLocations(board)) == 0 or len(redLocations(board)) == 0:
+        return []
     moveArr, biggestHeuristic = maximizeBoard(board, 3)
     return moveArr
-
+            
+            
 def main():
 
     newGame = Board()
