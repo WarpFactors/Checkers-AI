@@ -640,3 +640,12 @@ def main():
     newGame.playGame()
     time.sleep(10)
 main()
+
+moveList, boardList = movePieces(sampleArr, 0, 1)
+#print(attack_boardArr)
+#printBoardSimple(attack_boardArr[0])
+#printBoardSimple(attack_boardArr[1])
+#print()
+for i in range(len(boardList)):
+    printBoardSimple(boardList[i])
+    print()
