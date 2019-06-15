@@ -76,6 +76,7 @@ class Board:
         of x, y coordinates has a neighboring tile occupied by an enemy piece
         this function returns True, otherwise, False is returned."""
 
+        
         x, y = start
         currColor = self.boardState[x][y]
         if (currColor == ' R'):
@@ -179,18 +180,15 @@ class Board:
         mustAttack = False
 
         for x,y,c in startPosLocs:
-            #print("In collect pass: ", x, y, c)
             if self.validStrt((x, y)) == True:
                 if (mustAttack == True) or (self.adjTileEnemies((x, y)) == True):
-       #             print(self.adjTileEnemies((x,y)))
                     checkersCanCap.append((x,y,c))
                     checkersValid.append((x,y,c))
                     mustAttack = True
                     
                 else:                    
                     checkersValid.append((x,y,c))
-        
-        #print(self.collectCheckers(0,0))
+                    
         if mustAttack == False:
             print("\n\nAVAILABLE CHECKERS: ")
             for checker in checkersValid:            
@@ -238,7 +236,7 @@ class Board:
             backwardRight = (x + 1, y - 1)            
             if (self.validCoords(backwardRight) == True):
                 queue.append(backwardRight)        
-        print(queue)
+        #print(queue)
     
         for trgt in queue:
             if (self.verifyTargetColor((x, y), (trgt[0], trgt[1]), onlyCaptures) == True):                
@@ -329,7 +327,7 @@ class Board:
         string that uses a leading whitespace followed by R or r, for the red team, 
         and B or b, for the blue team and - for an empty tile.
         black team, and - for an empty tile"""
-
+        
         cappedChker = False
         if len(newLocation) == 0: return
         
@@ -349,8 +347,10 @@ class Board:
             print("Capture detected in move\n\n")
             cappedChkr = True
             deltaX = i-x
-            deltaY = j-y
+            deltaY = j-y             
             self.boardState[i][j] = ' -'
+            print (self.boardState[i][j])
+            
             #print("Resulting change in x, y: ", deltaX, ", ", deltaY)
             i = x + 2*deltaX
             j = y + 2*deltaY            
@@ -360,7 +360,7 @@ class Board:
                 elif (plyrColor == ' b') and (j == 0):
                     plyrColor = ' B'                
                 self.boardState[i][j] = plyrColor
-        
+            else: print("No good, really very rubbish!!!\nn")
             self.print_board()
         
         if self.gameWon() == True: return        
@@ -372,7 +372,7 @@ class Board:
 
     def playGame(self):        
         while self.running == True:
-            if self.turnCount % 2 == 0: plyrColors = [' r', ' R']
+            if self.turnCount % 2 == 1: plyrColors = [' r', ' R']
             else: plyrColors = [' b', ' B']
             
             gotInput = False
@@ -382,14 +382,16 @@ class Board:
             moveList = []
             color = ''
             
-            if (self.turnCount % 2 == 1):                 
+            if (self.turnCount % 2 == 0):                 
                 aiPlayerMoveSet = []
                 aiPlayerMoveSet = aiPlay(self.boardState)
                 print(aiPlayerMoveSet)
                 strtX, strtY = aiPlayerMoveSet[0]
                 moveList = aiPlayerMoveSet[1:]
                 strtColor = self.boardState[strtX][strtY]               
-                self.move(strtColor, (strtX, strtY), moveList)
+                self.move(strtColor, (strtX, strtY), moveList) 
+                self.print_board()
+                self.turnCount += 1
 
             while gotInput == False:
                 
@@ -455,7 +457,7 @@ class Board:
             self.move(color, (strtX, strtY), moveList)            
             self.turnCount += 1
             
-sampleArr = [[' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -']]
+#sampleArr = [[' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -'], [' -', ' R', ' -', ' -', ' -', ' B', ' -', ' B'], [' R', ' -', ' R', ' -', ' -', ' -', ' B', ' -']]
 sampleArr = [[' -', ' B', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' R', ' -', ' -', ' -', ' -', ' -'], [' -', ' -', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' R', ' -', ' R', ' -', ' B', ' -'], [' -', ' -', ' -', ' -', ' -', ' -', ' -', ' -'], [' -', ' -', ' -', ' -', ' R', ' -', ' B', ' -'], [' -', ' -', ' -', ' -', ' -', ' B', ' -', ' B'], [' -', ' -', ' -', ' -', ' -', ' -', ' B', ' -']]
 
 def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of possible moves that the piece will end up. Returns 0 if it's no piece.
@@ -931,9 +933,14 @@ def aiPlay(board): # Given a board, gives best move for b, returns an array of m
         
 
 def main():
+
     newGame = Board()
-    results = newGame.collectCheckers(0,0)
     newGame.playGame()
+    
+    
+    results = newGame.collectCheckers(0,0)    
+    #printBoardSimple(sampleArr)
+    #print(aiPlay(sampleArr))
     
     time.sleep(10)
 main()
