@@ -502,7 +502,7 @@ def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of pos
             
             #print()
     # Produce non-attacking moves (crowned).
-    if isValidPosition(x-1,y+1):
+    if isValidPosition(x-1,y+1) and crowned:
         if board[x-1][y+1] == ' -':
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
@@ -512,7 +512,7 @@ def movePiecesBlue(board, x, y): # Given the board, x, y, return an array of pos
             moveList.append([[x,y],[x-1,y+1]])
             #print("heya there")
             #print(boardList)
-    if isValidPosition(x+1,y+1):
+    if isValidPosition(x+1,y+1) and crowned:
         if board[x+1][y+1] == ' -':
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
@@ -681,7 +681,7 @@ def movePiecesRed(board, x, y): # Given the board, x, y, return an array of poss
             #print(boardList)
             #print()
     # Produce non-attacking moves (crowned).
-    if isValidPosition(x+1,y-1):
+    if isValidPosition(x+1,y-1) and crowned:
         if board[x+1][y-1] == ' -':
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
@@ -691,7 +691,7 @@ def movePiecesRed(board, x, y): # Given the board, x, y, return an array of poss
             moveList.append([[x,y],[x+1,y-1]])
             #print("heya there")
             #print(boardList)
-    if isValidPosition(x-1,y-1):
+    if isValidPosition(x-1,y-1) and crowned:
         if board[x-1][y-1] == ' -':
             temp_board = copy.deepcopy(board)
             temp_board[x][y] = ' -'
